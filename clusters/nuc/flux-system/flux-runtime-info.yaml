@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: flux-runtime-info
+  namespace: flux-system
+  labels:
+    toolkit.fluxcd.io/runtime: "true"
+    reconcile.fluxcd.io/watch: Enabled
+  annotations:
+    kustomize.toolkit.fluxcd.io/ssa: "Merge"
+data:
+  CLUSTER_NAME: nuc
+  ENVIRONMENT: dev
+  CLUSTER_DOMAIN: cluster.local
