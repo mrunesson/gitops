@@ -5,7 +5,7 @@ metadata:
   namespace: cert-manager
 rules:
   - apiGroups: [""]
-    resources: ["secrets"]
+    resources: ["secrets", "serviceaccounts"]
     verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
   - apiGroups: ["apps"]
     resources: ["deployments", "statefulsets", "daemonsets"]
