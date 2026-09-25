@@ -6,3 +6,5 @@ resources:
   - flux-rbac.yaml
   - oci-repository.yaml
   - helmrelease.yaml
+  - issuer-prod.yaml
+  - issuer-staging.yaml
