@@ -1,0 +1,25 @@
+# Tenant identity for the cert-manager namespace. The Flux multitenant lockdown
+# (FluxInstance spec.cluster.multitenant) makes controllers impersonate the
+# tenant ServiceAccount; we grant it cluster-admin so HelmRelease apply works.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: flux
+  namespace: cert-manager
+  labels:
+    app.kubernetes.io/part-of: cert-manager
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: flux-cert-manager-cluster-admin
+  labels:
+    app.kubernetes.io/part-of: cert-manager
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+  - kind: ServiceAccount
+    name: flux
+    namespace: cert-manager
