@@ -6,7 +6,4 @@ subjects:
   - kind: ServiceAccount
     name: flux
     namespace: cert-manager
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: flux-cert-manager-admin
+  name: cluster-admin
