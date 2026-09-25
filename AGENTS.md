@@ -20,7 +20,9 @@ The FluxInstance `spec.sync` (this repo, path `clusters/nuc`) makes the operator
 ## Gotchas
 
 - The in-cluster root `flux-system/flux-system` Kustomization and `flux-system` GitRepository are **owned by the Flux Operator** (`app.kubernetes.io/managed-by: flux-operator`, `kustomize.toolkit.fluxcd.io/ssa: Ignore`, `prune: Disabled`) — never commit or hand-edit them; drive changes via `flux-instance.yaml` (`spec.sync`, `spec.kustomize.patches`).
-- The repo is pre-app: the sync inventory today is only the FluxInstance + `flux-runtime-info` ConfigMap.
+- Current sync inventory: flux-system (FluxInstance + `flux-runtime-info`) and `cert-manager`.
+- `clusters/nuc/cert-manager/` — tenant pattern to copy: `namespace.yaml` + `flux-rbac.yaml` (SA `flux` + ClusterRoleBinding `flux-<app>-cluster-admin` → cluster-admin; dev single-node cluster, so cluster-wide is accepted here) + `oci-repository.yaml` (quay.io/jetstack, semver `1.x`) + `helmrelease.yaml` + `ClusterIssuer`s. HelmRelease/OCIRepository must set `serviceAccountName: flux`.
+- The letsencrypt ClusterIssuers solve HTTP-01 via ingress class `traefik` — no traefik workload exists in this repo yet; expect them Ready but the solvers inert until ingress lands.
 - Multitenancy lockdown is on (`multitenant: true`, default tenant SA `flux`, NetworkPolicy on): Flux controllers impersonate the `flux` SA and cross-namespace references are blocked. Each tenant namespace needs its own ServiceAccount + RoleBinding + source credentials; to use `flux-runtime-info` vars in a namespace, copy the CM there (ResourceSet `copyFrom`) and reference the **local** copy in `postBuild.substituteFrom` — pointing at `flux-system` will not work.
 - `flux-runtime-info` carries `reconcile.fluxcd.io/watch: Enabled` (changes re-reconcile dependents) and `kustomize.toolkit.fluxcd.io/ssa: "Merge"` — preserve both when editing.
 - To add a cluster: the Flux Operator must be installed there first (Helm/Terraform, outside this repo), then copy `clusters/nuc/` → `clusters/<name>/` and adjust the sync `path` + `flux-runtime-info` vars.
