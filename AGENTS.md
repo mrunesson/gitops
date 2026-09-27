@@ -1,7 +1,7 @@
 # AGENTS.md
 
 Manifest-only Flux CD GitOps repo — no code, no build/lint/test tooling.
-Flux watches `main` on `github.com/mrunesson/gitops`; commit + push is the entire deploy flow (no CI, no PR gate).
+Flux watches `main` on `github.com/mrunesson/gitops`. Changes go in through a pull request merged into `main` — never commit or push directly to `main`.
 
 ## Layout
 
@@ -10,19 +10,27 @@ Flux watches `main` on `github.com/mrunesson/gitops`; commit + push is the entir
 - `clusters/nuc/flux-system/flux-runtime-info.yaml` — ConfigMap with per-cluster vars `CLUSTER_NAME=nuc`, `ENVIRONMENT=dev`, `CLUSTER_DOMAIN=cluster.local`.
 - App workloads do NOT belong in `flux-system/` (control plane); each app gets its own directory under `clusters/<cluster>/`.
 
+## Workflow (branch → PR → merge)
+
+- Every change — even a one-line manifest fix — is made on a feature branch off current `main` (e.g. `docs/branch-pr-workflow`, `add/traefik`); never commit or push directly to `main`.
+- Before opening the PR, run `git pull --rebase origin main` to avoid stale-merge surprises.
+- There is **no CI** — the PR and reviewer are the only gate between a branch and a live rollout, so the local validation (`kustomize build`, server dry-run, see below) is mandatory before pushing, not optional.
+- Open the PR to `main` with `gh pr create`; in the description, name the affected cluster(s) and what will apply/prune on merge.
+- Merging is the deploy trigger: Flux reconciles `main` (10m interval). After merge, confirm the sync landed by checking the `flux-system` Kustomization status via `flux-operator-mcp` / `kubernetes` MCP.
+
 ## How sync works (read before adding anything)
 
 The FluxInstance `spec.sync` (this repo, path `clusters/nuc`) makes the operator create a `GitRepository` + root Kustomization, both named `flux-system`, which kustomize-applies the **whole** `clusters/nuc` tree (`prune: true`, 10m interval).
 
 - New app: create `clusters/nuc/<namespace>/kustomization.yaml` + manifests **and** list the directory in `clusters/nuc/kustomization.yaml` `resources:` — kustomize ignores unlisted directories, so an unlisted app is never applied and never pruned.
-- Validate before pushing: `kustomize build clusters/nuc` (optionally `kubectl apply -k clusters/nuc --dry-run=server`).
+- Validate on the branch **before pushing** (it is the only safety net the PR gets, since there is no CI): `kustomize build clusters/nuc` (optionally `kubectl apply -k clusters/nuc --dry-run=server`).
 
 ## Gotchas
 
 - The in-cluster root `flux-system/flux-system` Kustomization and `flux-system` GitRepository are **owned by the Flux Operator** (`app.kubernetes.io/managed-by: flux-operator`, `kustomize.toolkit.fluxcd.io/ssa: Ignore`, `prune: Disabled`) — never commit or hand-edit them; drive changes via `flux-instance.yaml` (`spec.sync`, `spec.kustomize.patches`).
 - Current sync inventory: flux-system (FluxInstance + `flux-runtime-info`), `cert-manager`, `cnpg-system`, `keycloak`.
 - Tenant pattern (copy for new apps): `namespace.yaml` + `flux-rbac.yaml` (ServiceAccount `flux` — **mandatory**, multitenant controllers impersonate it) + chart source + `helmrelease.yaml`. Chart sources: cert-manager & keycloak use `OCIRepository`, cnpg-system uses `HelmRepository` (cloudnative-pg.io/charts). Every HelmRelease must set `serviceAccountName: flux`; `OCIRepository` takes that field too, but v1 `HelmRepository` has **no** `spec.serviceAccountName` — adding it fails the dry-run.
-- RBAC per tenant differs — check, don't assume: cert-manager and cnpg-system still bind `flux` to **cluster-admin** (legacy, dev single-node cluster). keycloak was deliberately reduced (commit "keycloak reduce flux permissions") to just the ServiceAccount, no ClusterRoleBinding — verified working live because the chart deploys only namespaced resources. Prefer the minimal keycloak shape for new tenants.
+- RBAC per tenant differs — check, don't assume: cert-manager and cnpg-system still bind `flux` to **cluster-admin** (legacy, dev single-node cluster). keycloak uses the minimal tenant shape with a namespaced RoleBinding to `admin` (no ClusterRoleBinding) — verified working live because the chart deploys only namespaced resources. Prefer the minimal keycloak shape for new tenants.
 - The letsencrypt ClusterIssuers (`letsencrypt-staging`/`letsencrypt-prod`) solve HTTP-01 via ingress class `traefik`; keycloak's ingress already references `letsencrypt-prod`, but no traefik workload exists in this repo — certificates will not issue until ingress/traefik lands.
 - Multitenancy lockdown is on (`multitenant: true`, default tenant SA `flux`, NetworkPolicy on): Flux controllers impersonate the `flux` SA and cross-namespace references are blocked. Each tenant namespace needs its own ServiceAccount + RoleBinding + source credentials; to use `flux-runtime-info` vars in a namespace, copy the CM there (ResourceSet `copyFrom`) and reference the **local** copy in `postBuild.substituteFrom` — pointing at `flux-system` will not work.
 - `flux-runtime-info` carries `reconcile.fluxcd.io/watch: Enabled` (changes re-reconcile dependents) and `kustomize.toolkit.fluxcd.io/ssa: "Merge"` — preserve both when editing.
