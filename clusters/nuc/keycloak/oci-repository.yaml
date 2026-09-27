@@ -1,0 +1,16 @@
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: OCIRepository
+metadata:
+  name: keycloak-chart
+  namespace: keycloak
+  labels:
+    app.kubernetes.io/part-of: keycloak
+spec:
+  interval: 1h
+  url: oci://registry-1.docker.io/bitnamicharts/keycloak
+  layerSelector:
+    mediaType: application/vnd.cncf.helm.chart.content.v1.tar+gzip
+    operation: copy
+  ref:
+    semver: "*"
+  serviceAccountName: flux

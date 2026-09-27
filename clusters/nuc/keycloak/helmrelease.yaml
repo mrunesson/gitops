@@ -1,0 +1,39 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: keycloak
+  namespace: keycloak
+  labels:
+    app.kubernetes.io/part-of: keycloak
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: keycloak-chart
+  serviceAccountName: flux
+  install:
+    timeout: 10m
+    strategy:
+      name: RetryOnFailure
+      retryInterval: 5m
+  upgrade:
+    timeout: 10m
+    strategy:
+      name: RetryOnFailure
+      retryInterval: 5m
+  uninstall:
+    keepHistory: false
+  values:
+    # Single-node dev cluster: no High-Availability replicas
+    replicaCount: 1
+    production: false
+    postgresql:
+      enabled: false
+    externalDatabase:
+      host: keycloak-db-rw
+      port: 5432
+      user: keycloak
+      database: keycloak
+      existingSecret: keycloak-db-app
+      existingSecretUserKey: username
+      existingSecretPasswordKey: password

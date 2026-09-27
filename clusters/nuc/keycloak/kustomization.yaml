@@ -4,3 +4,6 @@ namespace: keycloak
 resources:
   - namespace.yaml
   - postgres.yaml
+  - flux-rbac.yaml
+  - oci-repository.yaml
+  - helmrelease.yaml
