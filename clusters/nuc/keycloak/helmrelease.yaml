@@ -29,6 +29,14 @@ spec:
     # Single-node dev cluster: no High-Availability replicas
     replicaCount: 1
     production: false
+    proxyHeaders: "xforwarded"
+    ingress:
+      enabled: true
+      ingressClassName: traefik
+      hostname: keycloak.int.linuxalert.org
+      annotations:
+        cert-manager.io/cluster-issuer: letsencrypt-prod
+      tls: true
     postgresql:
       enabled: false
     externalDatabase:
