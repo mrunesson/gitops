@@ -2,6 +2,8 @@ apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
 metadata:
   name: keycloak
+  labels:
+    app.kubernetes.io/part-of: keycloak
 spec:
   instances: 1
   bootstrap:
