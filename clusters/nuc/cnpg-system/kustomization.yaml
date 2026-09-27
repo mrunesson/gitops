@@ -3,5 +3,6 @@ kind: Kustomization
 namespace: cnpg-system
 resources:
   - namespace.yaml
+  - flux-rbac.yaml
   - helmrepository.yaml
   - helmrelease.yaml
