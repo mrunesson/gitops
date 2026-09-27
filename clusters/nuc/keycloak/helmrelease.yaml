@@ -24,6 +24,8 @@ spec:
   uninstall:
     keepHistory: false
   values:
+    image:
+      repository: bitnamilegacy/keycloak
     # Single-node dev cluster: no High-Availability replicas
     replicaCount: 1
     production: false
