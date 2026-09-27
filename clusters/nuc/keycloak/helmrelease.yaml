@@ -24,26 +24,52 @@ spec:
   uninstall:
     keepHistory: false
   values:
-    image:
-      repository: bitnamilegacy/keycloak
     # Single-node dev cluster: no High-Availability replicas
-    replicaCount: 1
-    production: false
-    proxyHeaders: "xforwarded"
+    replicas: 1
+    http:
+      relativePath: "/"
+    database:
+      vendor: postgres
+      hostname: keycloak-db-rw
+      port: 5432
+      database: keycloak
+      username: keycloak
+      existingSecret: keycloak-db-app
+      existingSecretKey: password
+    proxy:
+      enabled: true
+      mode: xforwarded
+      http:
+        enabled: true
+    command:
+      - "/opt/keycloak/bin/kc.sh"
+      - "start"
+      - "--http-port=8080"
+      - "--hostname-strict=false"
+    extraEnv: |
+      - name: KC_HOSTNAME
+        value: "https://keycloak.int.linuxalert.org"
+      - name: KC_HOSTNAME_STRICT
+        value: "false"
     ingress:
       enabled: true
       ingressClassName: traefik
-      hostname: keycloak.int.linuxalert.org
+      servicePort: http
       annotations:
         cert-manager.io/cluster-issuer: letsencrypt-prod
-      tls: true
-    postgresql:
-      enabled: false
-    externalDatabase:
-      host: keycloak-db-rw
-      port: 5432
-      user: keycloak
-      database: keycloak
-      existingSecret: keycloak-db-app
-      existingSecretUserKey: username
-      existingSecretPasswordKey: password
+      rules:
+        - host: keycloak.int.linuxalert.org
+          paths:
+            - path: /
+              pathType: ImplementationSpecific
+      tls:
+        - hosts:
+            - keycloak.int.linuxalert.org
+          secretName: keycloak.int.linuxalert.org-tls
+    resources:
+      requests:
+        cpu: 500m
+        memory: 512Mi
+      limits:
+        cpu: 750m
+        memory: 768Mi

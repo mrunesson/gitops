@@ -7,7 +7,7 @@ metadata:
     app.kubernetes.io/part-of: keycloak
 spec:
   interval: 1h
-  url: oci://registry-1.docker.io/bitnamicharts/keycloak
+  url: oci://ghcr.io/codecentric/helm-charts/keycloakx
   layerSelector:
     mediaType: application/vnd.cncf.helm.chart.content.v1.tar+gzip
     operation: copy
