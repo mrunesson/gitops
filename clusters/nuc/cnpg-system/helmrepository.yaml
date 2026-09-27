@@ -8,4 +8,3 @@ metadata:
 spec:
   interval: 1h
   url: https://github.com/cloudnative-pg/charts
-  serviceAccountName: flux
