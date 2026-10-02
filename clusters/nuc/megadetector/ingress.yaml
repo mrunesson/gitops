@@ -1,0 +1,31 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: megadetector-service
+  labels:
+    app.kubernetes.io/name: megadetector-service
+    app.kubernetes.io/component: detection-api
+    app.kubernetes.io/part-of: megadetector
+    app.kubernetes.io/managed-by: kustomize
+  annotations:
+    kubernetes.io/ingress.class: traefik
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+    traefik.ingress.kubernetes.io/router.middlewares: megadetector-redirect-https@kubernetescrd
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - megadetector.int.linuxalert.org
+      secretName: letsencrypt-prod
+  rules:
+    - host: megadetector.int.linuxalert.org
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: megadetector-service
+                port:
+                  number: 80
