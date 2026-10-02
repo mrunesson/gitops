@@ -9,3 +9,4 @@ resources:
   - issuer-prod.yaml
   - issuer-prod-gw.yaml
   - issuer-staging.yaml
+  - certificate.yaml
