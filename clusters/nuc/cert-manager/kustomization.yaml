@@ -7,4 +7,5 @@ resources:
   - oci-repository.yaml
   - helmrelease.yaml
   - issuer-prod.yaml
+  - issuer-prod-gw.yaml
   - issuer-staging.yaml
