@@ -13,9 +13,10 @@ spec:
       name: letsencrypt-prod-gw
     # Enable the HTTP-01 challenge provider
     solvers:
-      - http01:
+      - selector: {}
+        http01:
           gatewayHTTPRoute:
             parentRefs:
-              - name: traefik
+              - name: traefik-gateway
                 namespace: kube-system
                 kind: Gateway    
