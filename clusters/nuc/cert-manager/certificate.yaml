@@ -4,7 +4,7 @@ metadata:
   name: wildcard-int-linuxalert-org
   namespace: cert-manager
 spec:
-  secretName: letsencrypt-prod
+  secretName: wildcard-int-linuxalert-org
   duration: 2160h0m0s # 90d
   renewBefore: 360h0m0s # 15d
   issuerRef:
