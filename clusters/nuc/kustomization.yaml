@@ -5,3 +5,5 @@ resources:
   - cert-manager
   - cnpg-system
   - keycloak
+  - megadetector
+

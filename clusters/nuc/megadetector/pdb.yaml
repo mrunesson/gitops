@@ -1,0 +1,14 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: megadetector-service
+  labels:
+    app.kubernetes.io/name: megadetector-service
+    app.kubernetes.io/component: detection-api
+    app.kubernetes.io/part-of: megadetector
+    app.kubernetes.io/managed-by: kustomize
+spec:
+  maxUnavailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: megadetector-service
