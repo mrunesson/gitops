@@ -32,4 +32,7 @@ spec:
     # Single-node dev cluster: no High-Availability replicas
     replicaCount: 1
     prometheus:
-      enabled: false
+      enabled: true
+    config:
+      gatewayAPI:
+        enabled: true
