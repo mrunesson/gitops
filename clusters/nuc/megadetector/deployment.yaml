@@ -43,7 +43,7 @@ spec:
       containers:
         - name: megadetector-service
           image: ccr.ctrl-c.liu.se/runeson/megadetector-service:latest
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           ports:
             - name: http
               containerPort: 80
