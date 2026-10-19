@@ -4,7 +4,7 @@ metadata:
   name: speciesnet-service
   labels:
     app.kubernetes.io/name: speciesnet-service
-    app.kubernetes.io/component: detection-api
+    app.kubernetes.io/component: classification-api
     app.kubernetes.io/part-of: speciesnet
     app.kubernetes.io/managed-by: kustomize
 spec:
@@ -22,7 +22,7 @@ spec:
     metadata:
       labels:
         app.kubernetes.io/name: speciesnet-service
-        app.kubernetes.io/component: detection-api
+        app.kubernetes.io/component: classification-api
         app.kubernetes.io/part-of: speciesnet
     spec:
       automountServiceAccountToken: false
@@ -46,7 +46,7 @@ spec:
           imagePullPolicy: Always
           ports:
             - name: http
-              containerPort: 80
+              containerPort: 8001
               protocol: TCP
           env:
             - name: MODEL_PATH

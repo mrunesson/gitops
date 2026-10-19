@@ -3,9 +3,9 @@ kind: Middleware
 metadata:
   name: redirect-https
   labels:
-    app.kubernetes.io/name: megadetector-service
-    app.kubernetes.io/component: detection-api
-    app.kubernetes.io/part-of: megadetector
+    app.kubernetes.io/name: speciesnet-service
+    app.kubernetes.io/component: classification-api
+    app.kubernetes.io/part-of: speciesnet
     app.kubernetes.io/managed-by: kustomize
 spec:
   redirectScheme:

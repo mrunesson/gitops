@@ -6,14 +6,14 @@ kind: ServiceAccount
 metadata:
   name: flux
   labels:
-    app.kubernetes.io/part-of: megadetector
+    app.kubernetes.io/part-of: speciesnet
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   name: flux-admin
   labels:
-    app.kubernetes.io/part-of: megadetector
+    app.kubernetes.io/part-of: speciesnet
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
@@ -21,4 +21,4 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: flux
-    namespace: megadetector
+    namespace: speciesnet
