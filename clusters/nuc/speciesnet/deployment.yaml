@@ -94,7 +94,7 @@ spec:
         - name: model-volume
           image:
             reference: ccr.ctrl-c.liu.se/runeson/speciesnet-model:v4.0.3a
-            pullPolicy: IfNotPresent
+            pullPolicy: Always
         - name: tmp
           emptyDir:
             sizeLimit: 1Gi
