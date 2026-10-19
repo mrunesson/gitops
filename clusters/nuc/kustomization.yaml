@@ -7,4 +7,4 @@ resources:
   - cnpg-system
   - keycloak
   - megadetector
-
+  - speciesnet
