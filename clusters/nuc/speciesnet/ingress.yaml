@@ -1,0 +1,31 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: speciesnet-service
+  labels:
+    app.kubernetes.io/name: speciesnet-service
+    app.kubernetes.io/component: classification-api
+    app.kubernetes.io/part-of: speciesnet
+    app.kubernetes.io/managed-by: kustomize
+  annotations:
+    kubernetes.io/ingress.class: traefik
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+    traefik.ingress.kubernetes.io/router.middlewares: speciesnet-redirect-https@kubernetescrd
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - speciesnet.int.linuxalert.org
+      secretName: letsencrypt-prod
+  rules:
+    - host: speciesnet.int.linuxalert.org
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: speciesnet-service
+                port:
+                  number: 80

@@ -1,0 +1,13 @@
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: redirect-https
+  labels:
+    app.kubernetes.io/name: speciesnet-service
+    app.kubernetes.io/component: classification-api
+    app.kubernetes.io/part-of: speciesnet
+    app.kubernetes.io/managed-by: kustomize
+spec:
+  redirectScheme:
+    scheme: https
+    permanent: true
