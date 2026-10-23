@@ -9,6 +9,7 @@ resources:
   - service.yaml
   - ingress.yaml
   - middleware.yaml
+  - namespace.yaml
 labels:
   - pairs:
       app.kubernetes.io/name: bboxviz
