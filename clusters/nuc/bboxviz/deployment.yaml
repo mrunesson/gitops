@@ -1,0 +1,85 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bboxviz
+  labels:
+    app.kubernetes.io/name: bboxviz
+    app.kubernetes.io/part-of: bboxviz
+    app.kubernetes.io/component: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: bboxviz
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: bboxviz
+        app.kubernetes.io/part-of: bboxviz
+        app.kubernetes.io/component: frontend
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 101
+        runAsGroup: 101
+        fsGroup: 101
+      containers:
+        - name: bboxviz
+          image: bboxviz:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          env:
+            - name: DETECT_API_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: bboxviz-config
+                  key: DETECT_API_URL
+            - name: CLASSIFY_API_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: bboxviz-config
+                  key: CLASSIFY_API_URL
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 250m
+              memory: 256Mi
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 2
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 2
+            periodSeconds: 5
+            timeoutSeconds: 2
+            failureThreshold: 3
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+            capabilities:
+              drop:
+                - ALL
+          volumeMounts:
+            - name: nginx-conf
+              mountPath: /etc/nginx/conf.d/default.conf
+              subPath: nginx.conf
+              readOnly: true
+      volumes:
+        - name: nginx-conf
+          configMap:
+            name: bboxviz-config
+            items:
+              - key: nginx.conf
+                path: nginx.conf

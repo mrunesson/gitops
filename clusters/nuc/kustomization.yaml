@@ -8,3 +8,4 @@ resources:
   - keycloak
   - megadetector
   - speciesnet
+  - bboxviz

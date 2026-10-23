@@ -1,0 +1,21 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: bboxviz
+
+resources:
+  - configmap.yaml
+  - deployment.yaml
+  - service.yaml
+  - ingress.yaml
+  - middleware.yaml
+labels:
+  - pairs:
+      app.kubernetes.io/name: bboxviz
+      app.kubernetes.io/part-of: bboxviz
+configMapGenerator:
+  - name: bboxviz-config
+    behavior: merge
+    literals:
+      - DETECT_API_URL=https://megadetector.int.linuxalert.org/
+      - CLASSIFY_API_URL=https://speciesnet.int.linuxalert.org/

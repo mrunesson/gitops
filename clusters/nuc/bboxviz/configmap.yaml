@@ -1,0 +1,86 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: bboxviz-config
+  labels:
+    app.kubernetes.io/name: bboxviz
+    app.kubernetes.io/part-of: bboxviz
+    app.kubernetes.io/component: frontend
+data:
+  DETECT_API_URL: "https://megadetector.int.linuxalert.org/"
+  CLASSIFY_API_URL: "https://speciesnet.int.linuxalert.org/"
+  nginx.conf: |
+    server {
+        listen 8080;
+        server_name _;
+
+        root /usr/share/nginx/html;
+        index index.html;
+
+        # Maximum upload size for high-resolution images
+        client_max_body_size 50M;
+
+        # Gzip compression
+        gzip on;
+        gzip_vary on;
+        gzip_proxied any;
+        gzip_comp_level 6;
+        gzip_min_length 1024;
+        gzip_types
+            text/plain
+            text/css
+            text/xml
+            text/javascript
+            application/json
+            application/javascript
+            application/x-javascript
+            application/xml
+            application/xml+rss
+            image/svg+xml;
+
+        # Security headers
+        add_header X-Frame-Options "SAMEORIGIN" always;
+        add_header X-Content-Type-Options "nosniff" always;
+        add_header X-XSS-Protection "1; mode=block" always;
+        add_header Referrer-Policy "no-referrer-when-downgrade" always;
+
+        # Static assets caching
+        location ~* \.(?:css|js|jpg|jpeg|gif|png|ico|svg|webp|woff|woff2|ttf|eot)$ {
+            expires 1y;
+            add_header Cache-Control "public, max-age=31536000, immutable";
+            access_log off;
+        }
+
+        # SpeciesNet Classification API Proxy
+        location /api/classify {
+            proxy_pass https://speciesnet.int.linuxalert.org/api/classify;
+            proxy_ssl_server_name on;
+            proxy_set_header Host speciesnet.int.linuxalert.org;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+            client_max_body_size 50M;
+        }
+
+        # Object Detection API Proxy
+        location /api/detect {
+            proxy_pass https://megadetector.int.linuxalert.org/api/detect;
+            proxy_ssl_server_name on;
+            proxy_set_header Host megadetector.int.linuxalert.org;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+            client_max_body_size 50M;
+        }
+
+        # SPA routing fallback
+        location / {
+            try_files $uri $uri/ /index.html;
+        }
+
+        # Error pages
+        error_page 500 502 503 504 /50x.html;
+        location = /50x.html {
+            root /usr/share/nginx/html;
+        }
+    }

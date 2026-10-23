@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: bboxviz
+  labels:
+    app.kubernetes.io/name: bboxviz
+    app.kubernetes.io/part-of: bboxviz
+    app.kubernetes.io/component: frontend
+  annotations:
+    kubernetes.io/ingress.class: traefik
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+    traefik.ingress.kubernetes.io/router.middlewares: bboxviz-redirect-https@kubernetescrd
+spec:
+  rules:
+    - host: bboxviz.int.linuxalert.org
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: bboxviz
+                port:
+                  name: http

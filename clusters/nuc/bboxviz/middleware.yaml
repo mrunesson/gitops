@@ -1,0 +1,12 @@
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: redirect-https
+  labels:
+    app.kubernetes.io/name: bboxviz
+    app.kubernetes.io/component: frontend
+    app.kubernetes.io/part-of: bboxviz
+spec:
+  redirectScheme:
+    scheme: https
+    permanent: true
