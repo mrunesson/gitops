@@ -12,6 +12,11 @@ metadata:
     traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
     traefik.ingress.kubernetes.io/router.middlewares: bboxviz-redirect-https@kubernetescrd
 spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - bboxviz.int.linuxalert.org
+      secretName: letsencrypt-prod
   rules:
     - host: bboxviz.int.linuxalert.org
       http:
